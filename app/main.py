@@ -1,32 +1,36 @@
-from __future__ import annotations
-
-from contextlib import asynccontextmanager
-from pathlib import Path
-
 from fastapi import FastAPI
-
-from app.api.v1.api import api_router
-from app.core.config import settings
-from app.db.init_db import init_db
+from pydantic import BaseModel
+from typing import List
 
 
-@asynccontextmanager
-async def lifespan(_: FastAPI):
-    init_db()
-    Path(settings.upload_dir).mkdir(parents=True, exist_ok=True)
-    yield
+books_data = [
+    {"title": "The Alchemist", "author": "Paulo Coelho"},
+    {"title": "1984", "author": "George Orwell"},
+    {"title": "Clean Code", "author": "Robert C. Martin"},
+    {"title": "Atomic Habits", "author": "James Clear"}
+]
+
+class BookCreatModel(BaseModel):
+    title: str
+    author: str
 
 
-def create_app() -> FastAPI:
-    app = FastAPI(title=settings.app_name, lifespan=lifespan)
-
-    app.include_router(api_router, prefix=settings.api_v1_prefix)
-
-    @app.get("/")
-    def root() -> dict[str, str]:
-        return {"status": "ok"}
-
-    return app
+app = FastAPI()
 
 
-app = create_app()
+@app.get("/")
+async def root() -> dict[str, str]:
+    return {"success": "ok"}
+
+@app.get("/get_books",response_model=List[BookCreatModel])
+async def books():
+    return books_data
+
+
+@app.post("/book")
+async def create_book(data: BookCreatModel):
+    # books_data.append(data)
+    # return {"message": "Book added"}
+    books_data.append(data)
+    return books_data
+
