@@ -1,13 +1,13 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import List
 
 
 books_data = [
-    {"title": "The Alchemist", "author": "Paulo Coelho"},
-    {"title": "1984", "author": "George Orwell"},
-    {"title": "Clean Code", "author": "Robert C. Martin"},
-    {"title": "Atomic Habits", "author": "James Clear"}
+    {"id": 1, "title": "The Alchemist", "author": "Paulo Coelho"},
+    {"id": 2, "title": "1984", "author": "George Orwell"},
+    {"id": 3, "title": "Clean Code", "author": "Robert C. Martin"},
+    {"id": 4, "title": "Atomic Habits", "author": "James Clear"}
 ]
 
 class BookCreatModel(BaseModel):
@@ -33,4 +33,13 @@ async def create_book(data: BookCreatModel):
     # return {"message": "Book added"}
     books_data.append(data)
     return books_data
+
+@app.get("/book/{book_id}")
+async def get_book_id(book_id:int)->dict :
+    for book in books_data:
+        if book["id"]==book_id:
+             return book
+        
+    raise HTTPException(status_code=404, detail="Book not found")
+
 
