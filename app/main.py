@@ -56,5 +56,13 @@ async def update_book(id:int,b:BookUpdateModel):
             return d
     raise HTTPException(status_code=404, detail="Book not update")
 
+@app.delete("/book/{id}")
+async def delete_book(id:int):
+    for d in books_data:
+        if d["id"]==id:
+            books_data.remove(d)
+            return {"success":"true"}
+    return HTTPException(status_code=204, detail="Content delted")
+
 
 
