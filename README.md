@@ -5,7 +5,7 @@
 ```zsh
 source venv/bin/activate
 pip install -r requirements.txt
-uvicorn app.main:app --reload
+fastapi dev app/src
 ```
 
 App: http://127.0.0.1:8000

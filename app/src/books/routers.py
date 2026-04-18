@@ -1,40 +1,30 @@
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
+from fastapi import APIRouter
+from fastapi import HTTPException
 from typing import List
+from .book_data import books_data
+from .schemas import BookCreatModel, BookUpdateModel
+
+book_router = APIRouter()
 
 
-books_data = [
-    {"id": 1, "title": "The Alchemist", "author": "Paulo Coelho"},
-    {"id": 2, "title": "1984", "author": "George Orwell"},
-    {"id": 3, "title": "Clean Code", "author": "Robert C. Martin"},
-    {"id": 4, "title": "Atomic Habits", "author": "James Clear"}
-]
 
-class BookCreatModel(BaseModel):
-    title: str
-    author: str
-
-
-app = FastAPI()
-
-
-@app.get("/")
+@book_router.get("/")
 async def root() -> dict[str, str]:
     return {"success": "ok"}
 
-@app.get("/get_books",response_model=List[BookCreatModel])
+@book_router.get("/get_books",response_model=List[BookCreatModel])
 async def books():
     return books_data
 
 
-@app.post("/book")
+@book_router.post("/book")
 async def create_book(data: BookCreatModel):
     # books_data.append(data)
     # return {"message": "Book added"}
     books_data.append(data)
     return books_data
 
-@app.get("/book/{book_id}")
+@book_router.get("/book/{book_id}")
 async def get_book_id(book_id:int)->dict :
     for book in books_data:
         if book["id"]==book_id:
@@ -43,11 +33,8 @@ async def get_book_id(book_id:int)->dict :
     raise HTTPException(status_code=404, detail="Book not found")
 
 
-class BookUpdateModel(BaseModel):
-    title: str
-    author: str
 
-@app.patch("/book/{id}")
+@book_router.patch("/book/{id}")
 async def update_book(id:int,b:BookUpdateModel):
     for d in books_data:
         if d["id"]==id:
@@ -56,13 +43,12 @@ async def update_book(id:int,b:BookUpdateModel):
             return d
     raise HTTPException(status_code=404, detail="Book not update")
 
-@app.delete("/book/{id}")
+@book_router.delete("/book/{id}")
 async def delete_book(id:int):
     for d in books_data:
         if d["id"]==id:
             books_data.remove(d)
             return {"success":"true"}
     return HTTPException(status_code=204, detail="Content delted")
-
 
 
