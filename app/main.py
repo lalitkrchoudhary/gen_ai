@@ -43,3 +43,18 @@ async def get_book_id(book_id:int)->dict :
     raise HTTPException(status_code=404, detail="Book not found")
 
 
+class BookUpdateModel(BaseModel):
+    title: str
+    author: str
+
+@app.patch("/book/{id}")
+async def update_book(id:int,b:BookUpdateModel):
+    for d in books_data:
+        if d["id"]==id:
+            d["title"]=b.title
+            d["author"]=b.author
+            return d
+    raise HTTPException(status_code=404, detail="Book not update")
+
+
+
